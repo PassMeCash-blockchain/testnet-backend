@@ -16,5 +16,20 @@ def Upload (request):
                 description=request.POST['description'],
                 image_file=request.FILES['file']
             )
-            # ImageFile.save()
+        elif request.POST['fileType']=='css':
+            CSS.objects.create(
+                description=request.POST['description'],
+                css_file=request.FILES['file']
+            )
+        elif request.POST['fileType']=='javascript':
+            JSFile.objects.create(
+                description=request.POST['description'],
+                javascript_file=request.FILES['file']
+            )
+        elif request.POST['fileType']=='pdf':
+            pdfFile.objects.create(
+                description=request.POST['description'],
+                pdf_file=request.FILES['file']
+            )
+
     return render(request,'upload.html',{'form':form})
