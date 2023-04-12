@@ -1,2 +1,0 @@
-Wrote a content delivery network system (cdn) for the frontend to host their assets and static files for easy access
-through generated reference links
