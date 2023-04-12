@@ -6,10 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.8.6" integrity="sha384-Bj8qm/6B+71E6FQSySofJOUjA/gq330vEqjFx9LakWybUySyI1IQHwPtbTU7bNwx" crossorigin="anonymous"></script>
+
 </head>
 <body class='py-10'>
     <p class='font-bold text-lg text-center'>Upload Assets</p>
-    <form action="{%url 'upload'%}" method="post" enctype="multipart/form-data" class='mx-auto w-1/3 gap-3 bg-gray-100 flex flex-col p-10 rounded-md'>
+    <form action="{%url 'upload'%}" method="post" enctype="multipart/form-data" class='mx-auto w-1/3 gap-3 bg-gray-100 flex flex-col p-10 rounded-md' >
         {% csrf_token %}
         <label for="description">Description</label>
         <input type="text" name="description" id="" class='h-12 p-3'>
@@ -30,7 +32,25 @@
         </select>
         <label for="file">Add File</label>
         <input type="file" name="file" id="file" >
-        <button type="submit" class='bg-indigo-500 py-3 w-1/2 rounded-md self-center text-white' >Upload</button>
+        <button type="submit" class='bg-indigo-500 py-3 w-1/2 rounded-md self-center text-white'  >Upload</button>
+        {%if link is not None%}
+            {%if linkref == 'image'%}
+            <p class='text-sm text-green-500 '>{{msg}}</p>
+           <p><span>Asset Link: </span>  <a href="{% url 'imagelink' slug=link %}" class='text-sm text-indigo-500'>{{ref}}</a></p>
+            {%endif%}
+            {%if linkref == 'pdf'%}
+            <p class='text-sm text-green-500 '>{{msg}}</p>
+           <p><span>Asset Link: </span>  <a href="{% url 'pdflink' slug=link %}" class='text-sm text-indigo-500'>{{ref}}</a></p>
+            {%endif%}
+            {%if linkref == 'css'%}
+            <p class='text-sm text-green-500 '>{{msg}}</p>
+           <p><span>Asset Link: </span>  <a href="{% url 'csslink' slug=link %}" class='text-sm text-indigo-500'>{{ref}}</a></p>
+            {%endif%}
+            {%if linkref == 'js'%}
+            <p class='text-sm text-green-500 '>{{msg}}</p>
+           <p><span>Asset Link: </span>  <a href="{% url 'jslink' slug=link %}" class='text-sm text-indigo-500'>{{ref}}</a></p>
+            {%endif%}
+        {%endif%}
     </form>
 </body>
 </html>
