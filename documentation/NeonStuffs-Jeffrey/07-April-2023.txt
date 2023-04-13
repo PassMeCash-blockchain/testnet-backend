@@ -1,0 +1,1 @@
+Wrote an API to deliver real time information and details for selected crypto currencies, these information are the price, the market cap, coin name and subname, 1 hour and 24 hour change rate 
