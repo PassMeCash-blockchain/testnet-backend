@@ -25,15 +25,15 @@ def Upload (request):
                 image_file=request.FILES['file']
             )
             image.slug=generate_random_string()
-            context={'link':str(image.slug),'msg':'Image Upload Sucessful','ref':image.get_absolute_url(),'linkref':'image'}
+            context={'link':str(image.slug),'msg':'Image Upload Successfully','ref':image.get_absolute_url(),'linkref':'image'}
             image.save()
         elif request.POST['fileType']=='css':
-            css=CSS.objects.create(
+            css=CSSFile.objects.create(
                 description=request.POST['description'],
                 css_file=request.FILES['file']
             )
             css.slug=generate_random_string()
-            context={'link':str(css.slug),'msg':'CSS Upload Sucessful','ref':css.get_absolute_url(),'linkref':'css'}
+            context={'link':str(css.slug),'msg':'CSS Upload Successfully','ref':css.get_absolute_url(),'linkref':'css'}
             css.save()
         elif request.POST['fileType']=='javascript':
             js=JSFile.objects.create(
@@ -41,7 +41,7 @@ def Upload (request):
                 javascript_file=request.FILES['file']
             )
             js.slug=generate_random_string()
-            context={'link':str(js.slug),'msg':'Javascript Upload Sucessful','ref':js.get_absolute_url(),'linkref':'js'}
+            context={'link':str(js.slug),'msg':'Javascript Upload Successfully','ref':js.get_absolute_url(),'linkref':'js'}
             js.save()
 
         elif request.POST['fileType']=='pdf':
@@ -50,7 +50,7 @@ def Upload (request):
                 pdf_file=request.FILES['file']
             )
             pdf.slug=generate_random_string()
-            context={'link':str(pdf.slug),'msg':'PDF Upload Sucessful','ref':pdf.get_absolute_url(),'linkref':'pdf'}
+            context={'link':str(pdf.slug),'msg':'PDF Upload Successfully','ref':pdf.get_absolute_url(),'linkref':'pdf'}
             pdf.save()
 
         return render(request,'upload.html',context)
@@ -72,24 +72,24 @@ def GetImageAssetUrl(request,slug):
     obj=ImageFile.objects.get(slug=slug)
     media_url = getattr(settings, 'MEDIA_URL')
 
-    return redirect(f'{media_url}/{obj.image_file}')
+    return redirect(f'{media_url}{obj.image_file}')
 
 def GetCssAssetUrl(request,slug):
-    obj=Css.objects.get(slug=slug)
+    obj=CSSFile.objects.get(slug=slug)
     media_url = getattr(settings, 'MEDIA_URL')
 
-    return redirect(f'{media_url}/{obj.css_file}')
+    return redirect(f'{media_url}{obj.css_file}')
 def GetJsAssetUrl(request,slug):
     obj=JSFile.objects.get(slug=slug)
     media_url = getattr(settings, 'MEDIA_URL')
 
-    return redirect(f'{media_url}/{obj.javascript_file}')
+    return redirect(f'{media_url}{obj.javascript_file}')
 
 def GetPdfAssetUrl(request,slug):
     obj=PdfFile.objects.get(slug=slug)
     media_url = getattr(settings, 'MEDIA_URL')
 
-    return redirect(f'{media_url}/{obj.pdf_file}')
+    return redirect(f'{media_url}{obj.pdf_file}')
 
 def GetAllImages(request):
     return HttpResponse('All Stuffs')
