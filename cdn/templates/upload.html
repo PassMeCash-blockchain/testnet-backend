@@ -36,19 +36,19 @@
         {%if link is not None%}
             {%if linkref == 'image'%}
             <p class='text-sm text-green-500 '>{{msg}}</p>
-           <p><span>Asset Link: </span>  <a href="{% url 'imagelink' slug=link %}" class='text-sm text-indigo-500'>{{ref}}</a></p>
+           <p><span>Asset Link: </span>  <a target="_blank" href="{% url 'imagelink' slug=link %}" class='text-sm text-indigo-500'>{{ref}}</a></p>
             {%endif%}
             {%if linkref == 'pdf'%}
             <p class='text-sm text-green-500 '>{{msg}}</p>
-           <p><span>Asset Link: </span>  <a href="{% url 'pdflink' slug=link %}" class='text-sm text-indigo-500'>{{ref}}</a></p>
+           <p><span>Asset Link: </span>  <a target="_blank" href="{% url 'pdflink' slug=link %}" class='text-sm text-indigo-500'>{{ref}}</a></p>
             {%endif%}
             {%if linkref == 'css'%}
             <p class='text-sm text-green-500 '>{{msg}}</p>
-           <p><span>Asset Link: </span>  <a href="{% url 'csslink' slug=link %}" class='text-sm text-indigo-500'>{{ref}}</a></p>
+           <p><span>Asset Link: </span>  <a target="_blank" href="{% url 'csslink' slug=link %}" class='text-sm text-indigo-500'>{{ref}}</a></p>
             {%endif%}
             {%if linkref == 'js'%}
             <p class='text-sm text-green-500 '>{{msg}}</p>
-           <p><span>Asset Link: </span>  <a href="{% url 'jslink' slug=link %}" class='text-sm text-indigo-500'>{{ref}}</a></p>
+           <p><span>Asset Link: </span>  <a target="_blank" href="{% url 'jslink' slug=link %}" class='text-sm text-indigo-500'>{{ref}}</a></p>
             {%endif%}
         {%endif%}
     </form>
