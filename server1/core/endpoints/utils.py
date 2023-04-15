@@ -1,0 +1,1 @@
+authUrl = "http://localhost:7781/"
