@@ -14,7 +14,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
     def validate(self,data):
         phone=data.get('phone')
         if UserDetail.objects.filter(phone_number=phone).exists():
-            serializer.ValidationError({'error':'phone number already in use'})
+            serializers.ValidationError({'error':'phone number already in use'})
         return data
 
     def create(self,validated_dated):
@@ -30,3 +30,4 @@ class UserCreateSerializer(serializers.ModelSerializer):
         )
         details.save()
         return details
+    
