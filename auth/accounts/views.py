@@ -19,6 +19,7 @@ class RegisterView(APIView):
         serializer=UserCreateSerializer(data=(dict(request.data)))
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response({'details':"user created sucessfully"})
-
+            return Response({'success':"regsiter success"})
+    def login(self,user):
+        pass
 
