@@ -41,19 +41,20 @@ class RegisterView(APIView):
             user = serializer.create(serializer.validated_data)
             UD.objects.create(user=userInfo(user.username),
                             phone_number=data['phone_number'])
-            otp = T
-            if otp:
+            otp = req.post(f"{BaseUrl(r)}/otp/v1/create-or-update",
+                           data={"phone": data["phone_number"], "password": data['password']})
+            if otp.status_code == 200:
                 Stage.objects.create(user=user,stageOne=T)
                 UD.objects.filter(user=userInfo(
                     user.username)).update(verified=T)
                 res = req.post(f"{BaseUrl(r)}/auth/token/", data={"username":user.username, "password": data['password']})
-                res = {**res.json(), "uuid":user.username, "registration_stage":'step one', "otp":'sent'}
+                res = {**res.json(), "uuid":user.username, "registration_stage":'step one', "otp":otp.json()}
             else:
-                res = {"uuid": user.username, "registration_stage": "step two", 'otp': "not sent"}
+                res = {"uuid": user.username, "registration_stage": "step two", 'otp': otp.json()}
 
             return Response(res, status=status.HTTP_200_OK)
         
-        if data['path'] == "personal-info":
+        elif data['path'] == "personal-info":
 
             if not User.objects.filter(username=data['uuid']).exists():
                 return Response({'user': f"No user with uuid {data['uuid']}."}, status=status.HTTP_404_NOT_FOUND)
@@ -65,7 +66,7 @@ class RegisterView(APIView):
             else:
                 return Response({"error": res["message"]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        if data['path'] == "contact-info":
+        elif data['path'] == "contact-info":
 
             if not User.objects.filter(username=data['uuid']).exists():
                 return Response({'user': f"No user with uuid {data['uuid']}."}, status=status.HTTP_404_NOT_FOUND)
@@ -76,6 +77,9 @@ class RegisterView(APIView):
                 return Response({"uuid": data['uuid'], "registration_stage": 'completed'}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": res["message"]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({"error": "No path"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 class CheckInfoView(APIView):

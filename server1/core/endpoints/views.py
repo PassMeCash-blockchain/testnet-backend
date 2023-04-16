@@ -14,6 +14,7 @@ from .serializers import (
 )
 
 url = URLs["authUrl"]
+otpUrl = URLs["otpUrl"]
 class RegisterView(APIView):
 
     def post(self, request):
