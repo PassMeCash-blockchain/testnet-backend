@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.utils.timezone import make_aware
+import pytz
 import pyotp
 import base64
 import uuid
@@ -8,6 +10,7 @@ import arrow
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from .models import *
+from .serializers import *
 # Create your views here.
 
 def GenTime():
@@ -37,8 +40,9 @@ class RequestOTP(APIView):
             Mobile = phoneModel.objects.get(Mobile=data['phone'])  # user Newly created Model
         Mobile.counter += 1  # Update Counter At every Call
         if Mobile.counter>=6 and Mobile.wait_time is None:
-
-            Mobile.wait_time=str(self.time.shift(hours=1).format('YYYY-MM-DD HH:mm'))
+            naive_date_str=str(self.time.shift(hours=1).format('YYYY-MM-DD HH:mm'))
+            naive_datetime=datetime.strptime(naive_date_str, '%Y-%m-%d %H:%M')
+            Mobile.wait_time = make_aware(naive_datetime, timezone=pytz.timezone("Africa/Lagos"))
             Mobile.save()
             return Response({'disallowed':'maximum otp call exceeded'})
         elif Mobile.counter>=6 and Mobile.wait_time:
@@ -46,9 +50,7 @@ class RequestOTP(APIView):
         Mobile.save()
         keygen = generateKey()
         key = base64.b32encode(keygen.returnValue(data['phone']).encode())  # Key is generated
-        print(key)
         OTP = pyotp.HOTP(key)
-        print(OTP.at(Mobile.counter))
         # Call SMS Service
         return Response({"OTP": OTP.at(Mobile.counter)}, status=200)  #
 
@@ -66,16 +68,29 @@ class VerifyOtp(APIView):
 
         keygen = generateKey()
         key = base64.b32encode(keygen.returnValue(phone).encode())
-        print(key) # Generating Key
+         # Generating Key
         OTP = pyotp.HOTP(key)  # HOTP Model
         if OTP.verify(request.data["otp"] , Mobile.counter):  # Verifying the OTP
             return Response({'success':"Verification Successful"}, status=200)
         return Response("OTP is wrong", status=400)
 
 class ResetOTP(APIView):
+    time=datetime.strptime(GenTime().format('YYYY-MM-DD HH:mm'), '%Y-%m-%d %H:%M')
+    time=make_aware(time, timezone=pytz.timezone("Africa/Lagos"))
     def get(self,request):
-        pass
+        data=phoneModel.objects.all()
+        due_numbers=[]
+        for i in data:
+            if i.wait_time is not None:
+                if i.wait_time>self.time:
+                    due_numbers.append(i)
+                    due_phone=phoneModel.objects.get(id=i.id)
+                    due_phone.counter=0
+                    due_phone.wait_time=None
+                    due_phone.save()
+        if len(due_numbers)>0:
+            return Response({"message":f"found {len(due_numbers)} numbers and resolved them"})
+        else:
+            return Response({"message":"No due numbers found"})
 
 
-# b'GA4TAMRUGAZDAMRTFUYDILJRGVUHGZ3TOZSWQZDIMRRA===='
-# b'GA4TAMRUGAZDAMRTFUYDILJRGVUHGZ3TOZSWQZDIMRRA===='
