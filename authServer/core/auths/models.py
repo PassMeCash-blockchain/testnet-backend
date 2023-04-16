@@ -41,3 +41,15 @@ class Stage(models.Model):
             return "State one completed"
         if self.stageOne and self.stageTwo and self.stageThree:
             return "completed"
+
+
+class LastLogin(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    lastlogin = models.DateTimeField(auto_now_add=T)
+    created = models.DateTimeField(auto_now_add=T)
+
+    class Meta:
+        ordering = ['-created']
+
+    def __str__(self):
+        return f"{self.user.username} last login was {self.lastlogin}."

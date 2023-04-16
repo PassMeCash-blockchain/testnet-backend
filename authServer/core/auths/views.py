@@ -6,9 +6,14 @@ from django.conf import settings
 from django.contrib.auth.models import User
 import requests as req, uuid
 
-from .models import UserDetail as UD, Stage
+from .models import (
+    UserDetail as UD,
+    Stage,
+    LastLogin as LL,
+)
 from .serializers import (
-    UserCreateSerializer as ucs
+    UserCreateSerializer as ucs,
+    UserSerializer as us,
 )
 
 from .utils import *
@@ -42,9 +47,9 @@ class RegisterView(APIView):
                 UD.objects.filter(user=userInfo(
                     user.username)).update(verified=T)
                 res = req.post(f"{BaseUrl(r)}/auth/token/", data={"username":user.username, "password": data['password']})
-                res = {**res.json(), "uuid":user.username, "stage":'step one', "otp":'sent'}
+                res = {**res.json(), "uuid":user.username, "registration_stage":'step one', "otp":'sent'}
             else:
-                res = {"uuid": user.username, "stage": "step two", 'otp': "not sent"}
+                res = {"uuid": user.username, "registration_stage": "step two", 'otp': "not sent"}
 
             return Response(res, status=status.HTTP_200_OK)
         
@@ -55,8 +60,8 @@ class RegisterView(APIView):
             
             res = ucs.personal(data)
 
-            if res["message"] == 'done':
-                return Response({"uuid": data['uuid'], "stage": 'step three'}, status=status.HTTP_200_OK)
+            if res["status"] == 200:
+                return Response({"uuid": data['uuid'], "registration_stage": 'step three'}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": res["message"]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -67,8 +72,8 @@ class RegisterView(APIView):
 
             res = ucs.contact(data)
 
-            if res["message"] == 'done':
-                return Response({"uuid": data['uuid'], "stage": 'completed'}, status=status.HTTP_200_OK)
+            if res["status"] == 200:
+                return Response({"uuid": data['uuid'], "registration_stage": 'completed'}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": res["message"]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -79,17 +84,18 @@ class CheckInfoView(APIView):
         try:
             token = request.headers['X-Self']
             if Key == token:
-                req = request.query_params
-                if req['type'] == 'email':
-                    email = req['email']
-                    useEmail = User.objects.get(email=email)
-                    print(useEmail)
+                query = request.query_params
+                if query['type'] == 'email':
+                    email = query['email']
+                    useEmail = User.objects.filter(email=email)
                     if useEmail.exists():
-                        return Response({"username": useEmail.username}, status=status.HTTP_200_OK)
+                        for i in useEmail:
+                            username = i.username
+                        return Response({"username": username}, status=status.HTTP_200_OK)
                     else:
                         return Response({}, status=status.HTTP_404_NOT_FOUND)
                 else:
-                    phone = req['phone']
+                    phone = query['phone']
                     useNumber = UD.objects.filter(phone_number=phone)
                     if useNumber.exists():
                         return Response({"username": useNumber.user.username}, status=status.HTTP_200_OK)
@@ -98,8 +104,43 @@ class CheckInfoView(APIView):
             else:
                 return Response({"error": "UNAUTHORIZED"}, status=status.HTTP_401_UNAUTHORIZED)
         except Exception as e:
+            return Response({"error": "FORBIDDEN"}, status=status.HTTP_403_FORBIDDEN)
+
+
+class GetMoreInfoView(APIView):
+
+    permissions_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        try:
+            token = request.headers['X-Self']
+        except Exception as e:
             print(e)
             return Response({"error": "FORBIDDEN"}, status=status.HTTP_403_FORBIDDEN)
+        if Key == token:
+            user = request.user
+            res = us.login(user)
+            if res["status"] == 200:
+                return Response(res['message'], status=status.HTTP_200_OK)
+            else:
+                return Response({"error": res["message"]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        else:
+            return Response({"error": "UNAUTHORIZED"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+
+
+class createLastLogin(APIView):
+
+    permissions_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+
+        res = us.lastlogin(user)
+        if res["status"] == 200:
+            return Response({}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": res["message"]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
