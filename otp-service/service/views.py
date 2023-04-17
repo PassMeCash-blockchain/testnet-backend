@@ -1,14 +1,16 @@
 from django.shortcuts import render
+from django.utils.timezone import make_aware
+import pytz
 import pyotp
 import base64
 import uuid
 from datetime import datetime
-from rest_framework import permissions, status
 from rest_framework.views import APIView
 import arrow
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from .models import *
+from .serializers import *
 # Create your views here.
 
 def GenTime():
@@ -20,8 +22,8 @@ class generateKey:
     def returnValue(phone):
         return str(phone) + str(datetime.date(datetime.now())) + 'hsgsvehdhdb'
 
-
-class createUpdateOtp(APIView):
+class RequestOTP(APIView):
+    time=GenTime()
 
     def get(self,request):
         return Response('Generate your Otp')
@@ -29,34 +31,28 @@ class createUpdateOtp(APIView):
     def post(self,request):
         data=request.data
         phone=data['phone']
-        Mobile = phoneModel.objects.get_or_create(Mobile=phone)  # if Mobile already exists the take this else create New One
-        Mobile = Mobile[0]
-        if Mobile.counter == 6:
-            Mobile.counter += 1
+        try:
+            Mobile = phoneModel.objects.get(Mobile=data['phone'])  # if Mobile already exists the take this else create New One
+        except ObjectDoesNotExist:
+            phoneModel.objects.create(
+                Mobile=phone,
+            )
+            Mobile = phoneModel.objects.get(Mobile=data['phone'])  # user Newly created Model
+        Mobile.counter += 1  # Update Counter At every Call
+        if Mobile.counter>=6 and Mobile.wait_time is None:
+            naive_date_str=str(self.time.shift(hours=1).format('YYYY-MM-DD HH:mm'))
+            naive_datetime=datetime.strptime(naive_date_str, '%Y-%m-%d %H:%M')
+            Mobile.wait_time = make_aware(naive_datetime, timezone=pytz.timezone("Africa/Lagos"))
             Mobile.save()
-            return Response({'message': {"disallowed": 'maximum otp call exceeded', "wait_time": str(Mobile.wait_time)}}, status=status.HTTP_406_NOT_ACCEPTABLE)
-        else:
-            if Mobile.wait_time is not None:
-                return Response({'message': {"disallowed": "Cannot create otp now, Please exceed wait time", "wait_time": str(Mobile.wait_time)}}, status=status.HTTP_406_NOT_ACCEPTABLE)
-            else:
-                # Used in production
-                # keygen = generateKey()
-                # key = base64.b32encode(keygen.returnValue(phone).encode())  # Key is generated
-                # print(key)
-                # OTP = pyotp.HOTP(key)
-                # send otp function
-                Mobile.counter += 1  
-                OTP = '654321'
-                # phoneModel.objects.filter(Mobile=phone).update(
-                #     counter=Mobile.counter + 1)  # Update Counter At every Call
-                Mobile.save()
-                if Mobile.counter == 6:
-                    Mobile.wait_time = GenTime().shift(
-                        hours=1).format('YYYY-MM-DD HH:mm')
-                    Mobile.save()
-                print(Mobile)
-                return Response({"success": Mobile.counter}, status=status.HTTP_200_OK)
-                # return Response({"OTP": OTP.at(Mobile.counter)}, status=200)  #
+            return Response({'disallowed':'maximum otp call exceeded'})
+        elif Mobile.counter>=6 and Mobile.wait_time:
+                return Response({'message':"cannot create otp now, please exceed wait time"})
+        Mobile.save()
+        keygen = generateKey()
+        key = base64.b32encode(keygen.returnValue(data['phone']).encode())  # Key is generated
+        OTP = pyotp.HOTP(key)
+        # Call SMS Service
+        return Response({"OTP": OTP.at(Mobile.counter)}, status=200)  #
 
 class VerifyOtp(APIView):
 
@@ -72,16 +68,29 @@ class VerifyOtp(APIView):
 
         keygen = generateKey()
         key = base64.b32encode(keygen.returnValue(phone).encode())
-        print(key) # Generating Key
+         # Generating Key
         OTP = pyotp.HOTP(key)  # HOTP Model
         if OTP.verify(request.data["otp"] , Mobile.counter):  # Verifying the OTP
             return Response({'success':"Verification Successful"}, status=200)
         return Response("OTP is wrong", status=400)
 
-class ResetOtp(APIView):
+class ResetOTP(APIView):
+    time=datetime.strptime(GenTime().format('YYYY-MM-DD HH:mm'), '%Y-%m-%d %H:%M')
+    time=make_aware(time, timezone=pytz.timezone("Africa/Lagos"))
     def get(self,request):
-        pass
+        data=phoneModel.objects.all()
+        due_numbers=[]
+        for i in data:
+            if i.wait_time is not None:
+                if i.wait_time>self.time:
+                    due_numbers.append(i)
+                    due_phone=phoneModel.objects.get(id=i.id)
+                    due_phone.counter=0
+                    due_phone.wait_time=None
+                    due_phone.save()
+        if len(due_numbers)>0:
+            return Response({"message":f"found {len(due_numbers)} numbers and resolved them"})
+        else:
+            return Response({"message":"No due numbers found"})
 
 
-# b'GA4TAMRUGAZDAMRTFUYDILJRGVUHGZ3TOZSWQZDIMRRA===='
-# b'GA4TAMRUGAZDAMRTFUYDILJRGVUHGZ3TOZSWQZDIMRRA===='
