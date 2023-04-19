@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
 
+    'djagger',
+    'drf_yasg',
+
 ]
 
 MIDDLEWARE = [
@@ -142,3 +145,27 @@ CORS_ALLOW_HEADERS = list(default_headers)
 # ------------------------------------------------------------------------------------
 CKEY = os.getenv("connection-key")
 
+DJAGGER_DOCUMENT = {
+    "version": "1.0.0",
+    "title": "PassMeCash API Documentation",
+    "description": """This is PassMeCash Internal API Documentation""",
+    "license_name": "MIT",
+    "contact_email": "api@passme.cash",
+    "tags": [
+        {"name": "Account", "description": "API for account Creation and Authentication "},
+    ],
+    "x-tagGroups": [
+        {"name": "USER MANAGEMENT", "tags": ['Account']}
+    ],
+    "servers": [
+        {
+            "url": "https://example.com",
+            "description": "MainNet API Server"
+        },
+        {
+            "url": "https://example.com",
+            "description": "TestNet API Server"
+        },
+    ]
+}
+    # "app_names": ['Account', 'otp'],

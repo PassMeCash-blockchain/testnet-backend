@@ -5,6 +5,7 @@ import string, random, uuid, json, requests as req
 # Create your views here.
 
 from .utils import *
+from .schemas import *
 
 T = True
 F = False
@@ -15,7 +16,19 @@ from .serializers import (
 
 url = URLs["authUrl"]
 otpUrl = URLs["otpUrl"]
+
 class RegisterView(APIView):
+    """Creates new users.
+        > step 1 requires [Phone number, password & path = 'create']
+        > step 2 requires [uuid or access token in header, first name,last name, email, DOB & path = 'personal-info']
+        > step 3 requires [uuid or access token in header, state, lga, address, addreaa alt(optional) & path = 'contact-info']
+    """
+
+    summary = "Create User"
+
+    tags = ["Account"]
+    post_tag = ['Registration']
+    request_schema = RegisterRequestSchema
 
     def post(self, request):
         res = req.post(f"{url}auth/v1/register", data = request.data)
