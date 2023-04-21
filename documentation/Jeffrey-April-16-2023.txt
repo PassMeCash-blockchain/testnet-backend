@@ -1,0 +1,1 @@
+Wrote Api endpoint to Reset otp for waiting numbers
