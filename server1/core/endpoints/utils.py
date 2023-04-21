@@ -13,4 +13,9 @@ Key = settings.CKEY
 url = URLs["authUrl"]
 
 async def lastLogin(access):
-    await req.post(f"{url}auth/v1/lastlogin", headers={"Authorization": access})
+    await req.post(f"{url}auth/v1/lastlogin", headers={"Authorization":  f"Bearer {access}"})
+
+
+def getUserInfo(token):
+    res = req.post(f"{url}auth/v1/getUserInfo", headers={'Authorization': f"Bearer {token}"})
+    return res

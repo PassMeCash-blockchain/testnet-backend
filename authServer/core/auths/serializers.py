@@ -70,11 +70,11 @@ class UserCreateSerializer(serializers.ModelSerializer):
             if '-' in dob:
                 dob.replace('-', '/')
             
-            if '-' not in dob or '/' not in dob:
+            if '-' not in dob and '/' not in dob:
                 mssg = 'Invalid DOB format'
                 return Response.failed(mssg)
             else:
-                dob = datetime.strptime(dob, '%Y/%m/%d')
+                dob = datetime.strptime(dob, '%d/%m/%Y')
                 User.objects.filter(username=u).update(first_name=data['first_name'], last_name=data['last_name'], email=data['email'])
                 UD.objects.filter(user=u).update(dob=dob)
                 Stage.objects.filter(user=u).update(stageTwo=T)
