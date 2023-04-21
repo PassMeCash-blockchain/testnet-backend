@@ -1,0 +1,9 @@
+asgiref==3.6.0
+djagger==1.1.4
+Django==4.2
+djangorestframework==3.14.0
+pydantic==1.10.7
+pytz==2023.3
+sqlparse==0.4.4
+typing_extensions==4.5.0
+tzdata==2023.3
