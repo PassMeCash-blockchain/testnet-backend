@@ -12,11 +12,14 @@ class UserCreateSerializer(serializers.ModelSerializer):
         model=UserDetail
         fields=("phone_number","password")
 
+
+    
     # def validate(self,data):
     #     phone=data.get('phone_number')
     #     if UserDetail.objects.filter(phone_number=phone).exists():
     #         serializers.ValidationError({'error':'phone number already in use'})
     #     return data
+
 
     def create(self,validated_data):
         table_user=None
@@ -31,8 +34,10 @@ class UserCreateSerializer(serializers.ModelSerializer):
             details=UserDetail.objects.create(
             phone_number=self.initial_data['phone_number'],
             user=table_user
+
             )
             details.save()
             return details.user
         else:
             return {'Error':"registration failed"}
+

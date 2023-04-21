@@ -6,10 +6,18 @@ from pathlib import Path
 from datetime import timedelta
 
 load_env()
-from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+DATABASE = BASE_DIR / 'db.sqlite3'
+TEMPLATE = BASE_DIR / 'templates'
+# STATIC = BASE_DIR / 'static/'
+# MEDIA = BASE_DIR / 'd56ns165tm1d65sg1j65h1fdbd'
+
+# .env imports
+MODE = os.getenv("mode")
+Database = os.getenv("database")
 
 
 # Quick-start development settings - unsuitable for production
@@ -34,16 +42,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+
     # installed apps
-    'endpoints.apps.EndpointsConfig',
+    'service.apps.ServiceConfig',
 
     # installed dependecies
     'rest_framework',
-    'corsheaders',
-
-    'djagger',
-    'drf_yasg',
-
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
@@ -81,12 +86,24 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if Database == 'sqlite3':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': DATABASE,
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv("DB_NAME"),
+            'USER': os.getenv("DB_USER"),
+            'PASSWORD': os.getenv("DB_PASSWORD"),
+            'HOST': os.getenv("DB_HOST"),
+            'PORT': os.getenv("DB_PORT"),
+        }
+    }
 
 
 # Password validation
@@ -130,42 +147,18 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
-# ------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 # CORS
-# ------------------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 CORS_ALLOWED_ORIGINS = os.getenv("cors_allowed_hosts").split(",")
 
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = list(default_headers)
 
-# ------------------------------------------------------------------------------------
-# Global Variables
-# ------------------------------------------------------------------------------------
-CKEY = os.getenv("connection-key")
 
-DJAGGER_DOCUMENT = {
-    "version": "1.0.0",
-    "title": "PassMeCash API Documentation",
-    "description": """This is PassMeCash Internal API Documentation""",
-    "license_name": "MIT",
-    "contact_email": "api@passme.cash",
-    "tags": [
-        {"name": "Account", "description": "API for account Creation and Authentication "},
-    ],
-    "x-tagGroups": [
-        {"name": "USER MANAGEMENT", "tags": ['Account']}
-    ],
-    "servers": [
-        {
-            "url": "https://example.com",
-            "description": "MainNet API Server"
-        },
-        {
-            "url": "https://example.com",
-            "description": "TestNet API Server"
-        },
-    ]
-}
-    # "app_names": ['Account', 'otp'],
+# -------------------------------------------------------------------------
+# Global Variable
+# -------------------------------------------------------------------------
+
+CKEY = os.getenv("connection-key")
