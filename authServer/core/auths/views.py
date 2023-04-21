@@ -21,6 +21,17 @@ from .utils import *
 T = True
 F = False
 
+class getUserInfo(APIView):
+
+    permissions_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+
+        res = {"user": str(user)}
+
+        return Response(res, status=status.HTTP_200_OK)
+
 class RegisterView(APIView):
 
     def post(self, request):
@@ -41,16 +52,18 @@ class RegisterView(APIView):
             user = serializer.create(serializer.validated_data)
             UD.objects.create(user=userInfo(user.username),
                             phone_number=data['phone_number'])
-            otp = req.post(f"{BaseUrl(r)}/otp/v1/create-or-update",
-                           data={"phone": data["phone_number"], "password": data['password']})
-            if otp.status_code == 200:
+            # otp = req.post(f"{BaseUrl(r)}/otp/v1/create-or-update",
+            #                data={"phone": data["phone_number"], "password": data['password']})
+            # if otp.status_code == 200:
+            otp = {'sent': True}
+            if otp:
                 Stage.objects.create(user=user,stageOne=T)
                 UD.objects.filter(user=userInfo(
                     user.username)).update(verified=T)
                 res = req.post(f"{BaseUrl(r)}/auth/token/", data={"username":user.username, "password": data['password']})
-                res = {**res.json(), "uuid":user.username, "registration_stage":'step one', "otp":otp.json()}
+                res = {**res.json(), "registration_stage":'step one', "otp":otp}
             else:
-                res = {"uuid": user.username, "registration_stage": "step two", 'otp': otp.json()}
+                res = {"registration_stage": "step two", 'otp': otp}
 
             return Response(res, status=status.HTTP_200_OK)
         
@@ -62,7 +75,7 @@ class RegisterView(APIView):
             res = ucs.personal(data)
 
             if res["status"] == 200:
-                return Response({"uuid": data['uuid'], "registration_stage": 'step three'}, status=status.HTTP_200_OK)
+                return Response({"registration_stage": 'step three'}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": res["message"]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -74,7 +87,7 @@ class RegisterView(APIView):
             res = ucs.contact(data)
 
             if res["status"] == 200:
-                return Response({"uuid": data['uuid'], "registration_stage": 'completed'}, status=status.HTTP_200_OK)
+                return Response({"registration_stage": 'completed'}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": res["message"]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
@@ -102,7 +115,9 @@ class CheckInfoView(APIView):
                     phone = query['phone']
                     useNumber = UD.objects.filter(phone_number=phone)
                     if useNumber.exists():
-                        return Response({"username": useNumber.user.username}, status=status.HTTP_200_OK)
+                        for i in useNumber:
+                            user = i.user.username
+                        return Response({"username": user}, status=status.HTTP_200_OK)
                     else:
                         return Response({}, status=status.HTTP_404_NOT_FOUND)
             else:

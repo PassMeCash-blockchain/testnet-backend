@@ -17,21 +17,12 @@ from .serializers import (
 url = URLs["authUrl"]
 otpUrl = URLs["otpUrl"]
 
+
 class RegisterView(APIView):
-    """Creates new users.
-        > step 1 requires [Phone number, password & path = 'create']
-        > step 2 requires [uuid or access token in header, first name,last name, email, DOB & path = 'personal-info']
-        > step 3 requires [uuid or access token in header, state, lga, address, addreaa alt(optional) & path = 'contact-info']
-    """
-
-    summary = "Create User"
-
-    tags = ["Account"]
-    post_tag = ['Registration']
-    request_schema = RegisterRequestSchema
 
     def post(self, request):
-        res = req.post(f"{url}auth/v1/register", data = request.data)
+        data = {**request.data, "path":'create'}
+        res = req.post(f"{url}auth/v1/register", data = data)
         ress = res.json()
         err = list(res.json().keys())
         Errors = []
@@ -59,6 +50,83 @@ class RegisterView(APIView):
                 Errors.append(ress[err[i]])
             return Response({"message": Errors}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class RegisterPersonalView(APIView):
+
+    def post(self, request):
+        token = request.headers['xPMC']
+        user = getUserInfo(token)
+        if user.status_code == 401:
+            return Response({"error": 'Unauthorized user'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            data = {**request.data, "path":'personal-info','uuid': user.json()['user']}
+            res = req.post(f"{url}auth/v1/register", data = data)
+            ress = res.json()
+            err = list(res.json().keys())
+            Errors = []
+            if res.status_code == 200:
+                return Response({"message": res.json()}, status=status.HTTP_200_OK)
+            
+            if res.status_code == 400:
+
+                for i in range(len(err)):
+                    if err[i] == 'password':
+                        Errors.append(ress[err[i]])
+                    if err[i] == 'phone_number':
+                        Errors.append(ress[err[i]])
+                    else:
+                        Errors.append(ress[err[i]])
+                return Response({"message": Errors}, status=status.HTTP_200_OK)
+            
+            if res.status_code == 404:
+                for i in range(len(err)):
+                    Errors.append(ress[err[i]])
+                return Response({"message": Errors}, status=status.HTTP_404_NOT_FOUND)
+            
+            if res.status_code == 500:
+                for i in range(len(err)):
+                    Errors.append(ress[err[i]])
+                return Response({"message": Errors}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class RegisterContactView(APIView):
+
+    def post(self, request):
+        token = request.headers['xPMC']
+        user = getUserInfo(token)
+        if user.status_code == 401:
+            return Response({"error": 'Unauthorized user'}, status=status.HTTP_401_UNAUTHORIZED)
+        else:
+            data = {**request.data, "path":'contact-info','uuid': user.json()['user']}
+            res = req.post(f"{url}auth/v1/register", data = data)
+            ress = res.json()
+            err = list(res.json().keys())
+            Errors = []
+            if res.status_code == 200:
+                return Response({"message": res.json()}, status=status.HTTP_200_OK)
+            
+            if res.status_code == 400:
+
+                for i in range(len(err)):
+                    if err[i] == 'password':
+                        Errors.append(ress[err[i]])
+                    if err[i] == 'phone_number':
+                        Errors.append(ress[err[i]])
+                    else:
+                        Errors.append(ress[err[i]])
+                return Response({"message": Errors}, status=status.HTTP_200_OK)
+            
+            if res.status_code == 404:
+                for i in range(len(err)):
+                    Errors.append(ress[err[i]])
+                return Response({"message": Errors}, status=status.HTTP_404_NOT_FOUND)
+            
+            if res.status_code == 500:
+                for i in range(len(err)):
+                    Errors.append(ress[err[i]])
+                return Response({"message": Errors}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 class LoginView(APIView):
     
     def post(self, request):
@@ -79,7 +147,7 @@ class LoginView(APIView):
         if _res.status_code == 403:
             return Response({"error": "FORBIDDEN"}, status=status.HTTP_403_FORBIDDEN)
         if _res.status_code == 404:
-            return Response({"message": "No account found with the given cridentials."}, status=status.HTTP_406_NOT_ACCEPTABLE)
+            return Response({"message": "No account found with the given credentials."}, status=status.HTTP_406_NOT_ACCEPTABLE)
         if _res.status_code == 200:
             loginData = {"username": _res.json()['username'], "password": data['password']}
             res = req.post(f"{url}auth/token/", data = loginData,)
