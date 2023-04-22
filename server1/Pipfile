@@ -8,8 +8,11 @@ djangorestframework = "*"
 django-cors-headers = "*"
 django = "*"
 requests = "*"
+djagger = "*"
+drf-yasg = "*"
+channels = {extras = ["daphne"], version = "*"}
 
 [dev-packages]
 
 [requires]
-python_version = "3.11"
+python_version = "3.10"

@@ -27,6 +27,7 @@ ALLOWED_HOSTS = os.getenv("allowed_hosts").split(",")
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -36,6 +37,7 @@ INSTALLED_APPS = [
 
     # installed apps
     'endpoints.apps.EndpointsConfig',
+    'websockets',
 
     # installed dependecies
     'rest_framework',
@@ -43,6 +45,8 @@ INSTALLED_APPS = [
 
     'djagger',
     'drf_yasg',
+    'channels',
+
 
 ]
 
@@ -76,7 +80,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
-
+ASGI_APPLICATION=  'core.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
