@@ -19,6 +19,6 @@ from django.urls import path, include
 
 urlpatterns = [
     # PassMeCash API Documentation
-    path('endpoints/', include('endpoints.urls')),
+    path('endpoint/v1/', include('endpoints.urls')),
     path('', include('djagger.urls')),
 ]
