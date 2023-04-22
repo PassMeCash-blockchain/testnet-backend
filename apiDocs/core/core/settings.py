@@ -23,9 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-f6g5n8cf87qy&ezg4k-c37@xt0(#qm!2m-(h+#vrkep%6&su=l'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
+# DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['docs.passme.cash']
 
 
 # Application definition
@@ -140,11 +141,11 @@ DJAGGER_DOCUMENT = {
     ],
     "servers": [
         {
-            "url": "https://example.com",
+            "url": "https://passmecash.com",
             "description": "MainNet API Server"
         },
         {
-            "url": "https://example.com",
+            "url": "https://api.passme.cash",
             "description": "TestNet API Server"
         },
     ]
