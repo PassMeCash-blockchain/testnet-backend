@@ -4,6 +4,7 @@ from .views import (
     CheckInfoView,
     GetMoreInfoView,
     createLastLogin,
+    getUserInfo,
 #     RetrieveUserView,
 #     CheckEmailView,
 #     LastLoginView
@@ -14,6 +15,7 @@ urlpatterns = [
     path('check', CheckInfoView.as_view()),
     path('getmorelogininfo', GetMoreInfoView.as_view()),
     path('lastlogin', createLastLogin.as_view()),
+    path('getUserInfo', getUserInfo.as_view()),
     # path('check_email', CheckEmailView.as_view()),
     # path('lastlogin', LastLoginView.as_view()),
 

@@ -8,9 +8,6 @@ djangorestframework = "*"
 django-cors-headers = "*"
 django = "*"
 requests = "*"
-djagger = "*"
-drf-yasg = "*"
-channels = {extras = ["daphne"], version = "*"}
 
 [dev-packages]
 
