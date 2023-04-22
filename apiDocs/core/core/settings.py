@@ -141,7 +141,7 @@ DJAGGER_DOCUMENT = {
     ],
     "servers": [
         {
-            "url": "https://passmecash.com",
+            "url": "https://api.passmecash.com",
             "description": "MainNet API Server"
         },
         {
