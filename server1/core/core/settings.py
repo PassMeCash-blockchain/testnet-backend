@@ -27,6 +27,7 @@ ALLOWED_HOSTS = os.getenv("allowed_hosts").split(",")
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -36,10 +37,17 @@ INSTALLED_APPS = [
 
     # installed apps
     'endpoints.apps.EndpointsConfig',
+    'websockets',
 
     # installed dependecies
     'rest_framework',
     'corsheaders',
+
+    'djagger',
+    'drf_yasg',
+    'channels',
+
+
 
 ]
 
@@ -73,7 +81,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
-
+ASGI_APPLICATION=  'core.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -141,28 +149,3 @@ CORS_ALLOW_HEADERS = list(default_headers)
 # Global Variables
 # ------------------------------------------------------------------------------------
 CKEY = os.getenv("connection-key")
-
-DJAGGER_DOCUMENT = {
-    "version": "1.0.0",
-    "title": "PassMeCash API Documentation",
-    "description": """This is PassMeCash Internal API Documentation""",
-    "license_name": "MIT",
-    "contact_email": "api@passme.cash",
-    "tags": [
-        {"name": "Account", "description": "API for account Creation and Authentication "},
-    ],
-    "x-tagGroups": [
-        {"name": "USER MANAGEMENT", "tags": ['Account']}
-    ],
-    "servers": [
-        {
-            "url": "https://example.com",
-            "description": "MainNet API Server"
-        },
-        {
-            "url": "https://example.com",
-            "description": "TestNet API Server"
-        },
-    ]
-}
-    # "app_names": ['Account', 'otp'],

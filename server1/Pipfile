@@ -8,9 +8,8 @@ djangorestframework = "*"
 django-cors-headers = "*"
 django = "*"
 requests = "*"
-djangorestframework-simplejwt = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.11"
+python_version = "3.10"
