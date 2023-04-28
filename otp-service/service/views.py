@@ -5,12 +5,15 @@ import pyotp
 import base64
 import uuid
 from datetime import datetime
-from rest_framework.views import APIView
+from adrf.views import APIView
 import arrow
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from .models import *
 from .serializers import *
+import asyncio
+from asgiref.sync import sync_to_async
+from asgiref.sync import async_to_sync
 # Create your views here.
 
 def GenTime():
@@ -22,37 +25,60 @@ class generateKey:
     def returnValue(phone):
         return str(phone) + str(datetime.date(datetime.now())) + 'hsgsvehdhdb'
 
+async def OTPSim():
+    await asyncio.sleep(5)
+    return False
+
+@sync_to_async
+def get_mobile_object(phone):
+    return phoneModel.objects.get(Mobile=phone)
+
+@sync_to_async
+def create_phone_model(phone):
+    return phoneModel.objects.create(Mobile=phone)
+
+@sync_to_async
+def update_wait_time(instance):
+    naive_date_str=str(self.time.shift(hours=1).format('YYYY-MM-DD HH:mm'))
+    naive_datetime=datetime.strptime(naive_date_str, '%Y-%m-%d %H:%M')
+    instance.wait_time = make_aware(naive_datetime, timezone=pytz.timezone("Africa/Lagos"))
+    instance.save()
+
+@sync_to_async
+def save_instance(instance):
+    instance.save()
+
 class RequestOTP(APIView):
     time=GenTime()
 
-    def get(self,request):
+    async def get(self,request):
+        await asyncio.sleep(5)
         return Response('Generate your Otp')
 
-    def post(self,request):
+    async def post(self,request):
         data=request.data
         phone=data['phone']
         try:
-            Mobile = phoneModel.objects.get(Mobile=data['phone'])  # if Mobile already exists the take this else create New One
+            Mobile = await get_mobile_object(phone)   # if Mobile already exists the take this else create New One
         except ObjectDoesNotExist:
-            phoneModel.objects.create(
-                Mobile=phone,
-            )
-            Mobile = phoneModel.objects.get(Mobile=data['phone'])  # user Newly created Model
+            await create_phone_model(phone)
+            Mobile = await get_mobile_object(phone)   # user Newly created Model
+
         Mobile.counter += 1  # Update Counter At every Call
         if Mobile.counter>=6 and Mobile.wait_time is None:
-            naive_date_str=str(self.time.shift(hours=1).format('YYYY-MM-DD HH:mm'))
-            naive_datetime=datetime.strptime(naive_date_str, '%Y-%m-%d %H:%M')
-            Mobile.wait_time = make_aware(naive_datetime, timezone=pytz.timezone("Africa/Lagos"))
-            Mobile.save()
+            await update_wait_time(Mobile)
             return Response({'disallowed':'maximum otp call exceeded'})
         elif Mobile.counter>=6 and Mobile.wait_time:
                 return Response({'message':"cannot create otp now, please exceed wait time"})
-        Mobile.save()
+        await save_instance(Mobile)
         keygen = generateKey()
         key = base64.b32encode(keygen.returnValue(data['phone']).encode())  # Key is generated
         OTP = pyotp.HOTP(key)
-        # Call SMS Service
-        return Response({"OTP": OTP.at(Mobile.counter)}, status=200)  #
+        result= await OTPSim()
+        if result:
+            return Response({"OTP-SENT": OTP.at(Mobile.counter)}, status=200)  #
+        else:
+            return Response({"failure":"otp sending failed"})
 
 class VerifyOtp(APIView):
 
