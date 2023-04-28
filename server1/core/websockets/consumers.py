@@ -8,11 +8,11 @@ class WebsocketCluster(AsyncWebsocketConsumer):
         self.room_name='cluster'
         self.room_group_name='instance ' + self.room_name
         await self.accept()
-        await self.send(text_data='connected')
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
+        await self.send(text_data='connected to server')
+        # await self.channel_layer.group_add(
+        #     self.room_group_name,
+        #     self.channel_name
+        # )
 
     async def receive(self, text_data=None, bytes_data=None):
         pass
