@@ -26,10 +26,8 @@ class RegisterView(APIView):
         # data = {"phone_number": pH, "password": p, "path":'create'}
         data = {**request.data, "path":'create'}
         res = req.post(f"{url}auth/v1/register", data = data)
-        print(res.json())
         ress = res.json()
         err = list(res.json().keys())
-        print(err)
         Errors = []
         if res.status_code == 200:
             return Response({"message": res.json()}, status=status.HTTP_200_OK)
@@ -46,7 +44,7 @@ class RegisterView(APIView):
                     Errors.append(ress[err[i]])
                 else:
                     Errors.append(ress[err[i]])
-            return Response({"message": Errors}, status=status.HTTP_200_OK)
+            return Response({"message": Errors}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         if res.status_code == 404:
             for i in range(len(err)):
