@@ -8,6 +8,10 @@ from .models import (
     LastLogin as LL
 )
 
+URLs = {
+    "otpUrl": "http://localhost:7782/"
+}
+
 Key = settings.CKEY
 
 def myTime():

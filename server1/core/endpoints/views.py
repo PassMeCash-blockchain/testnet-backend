@@ -21,33 +21,34 @@ otpUrl = URLs["otpUrl"]
 class RegisterView(APIView):
 
     def post(self, request):
-        data = {**request.data, "path":'create'}
+        d = decrypt(request.data, 'json')
+        data = {**d, "path":'create'}
         res = req.post(f"{url}auth/v1/register", data = data)
         ress = res.json()
         err = list(res.json().keys())
         Errors = []
         if res.status_code == 200:
-            return Response({"message": res.json()}, status=status.HTTP_200_OK)
+            return Response({"message": encrypt(res.json(), 'json')}, status=status.HTTP_200_OK)
         
         if res.status_code == 400:
 
             for i in range(len(err)):
                 if err[i] == 'password':
-                    Errors.append(ress[err[i]])
+                    Errors.append(encrypt(ress[err[i]]), 'json')
                 if err[i] == 'phone_number':
-                    Errors.append(ress[err[i]])
+                    Errors.append(encrypt(ress[err[i]]), 'json')
                 else:
-                    Errors.append(ress[err[i]])
+                    Errors.append(encrypt(ress[err[i]]), 'json')
             return Response({"message": Errors}, status=status.HTTP_200_OK)
         
         if res.status_code == 404:
             for i in range(len(err)):
-                Errors.append(ress[err[i]])
+                Errors.append(encrypt(ress[err[i]]), 'json')
             return Response({"message": Errors}, status=status.HTTP_404_NOT_FOUND)
         
         if res.status_code == 500:
             for i in range(len(err)):
-                Errors.append(ress[err[i]])
+                Errors.append(encrypt(ress[err[i]]), 'json')
             return Response({"message": Errors}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class RegisterPersonalView(APIView):

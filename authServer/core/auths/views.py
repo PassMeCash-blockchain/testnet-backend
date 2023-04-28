@@ -4,7 +4,7 @@ from rest_framework import permissions, status
 
 from django.conf import settings
 from django.contrib.auth.models import User
-import requests as req, uuid
+import requests as req, uuid, asyncio, httpx
 
 from .models import (
     UserDetail as UD,
@@ -21,6 +21,8 @@ from .utils import *
 T = True
 F = False
 
+otpUrl = URLs["otpUrl"]
+
 class getUserInfo(APIView):
 
     permissions_classes = [permissions.IsAuthenticated]
@@ -31,6 +33,7 @@ class getUserInfo(APIView):
         res = {"user": str(user)}
 
         return Response(res, status=status.HTTP_200_OK)
+
 
 class RegisterView(APIView):
 
@@ -55,13 +58,17 @@ class RegisterView(APIView):
             # otp = req.post(f"{BaseUrl(r)}/otp/v1/create-or-update",
             #                data={"phone": data["phone_number"], "password": data['password']})
             # if otp.status_code == 200:
-            otp = {'sent': True}
+            cid = uuid.uuid4()
+            otp = {'connection_id': cid}
+            # connect_to_otp_server(r, data, user)
+            connect = connect_to_otp_server(cid, data['phone_number'])
+            asyncio.run(connect)
             if otp:
                 Stage.objects.create(user=user,stageOne=T)
                 UD.objects.filter(user=userInfo(
                     user.username)).update(verified=T)
                 res = req.post(f"{BaseUrl(r)}/auth/token/", data={"username":user.username, "password": data['password']})
-                res = {**res.json(), "registration_stage":'step one', "otp":otp}
+                res = {**res.json(), "registration_stage":'step two', "otp":otp}
             else:
                 res = {"registration_stage": "step two", 'otp': otp}
 
@@ -92,7 +99,6 @@ class RegisterView(APIView):
                 return Response({"error": res["message"]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         else:
             return Response({"error": "No path"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
 
 
 class CheckInfoView(APIView):
@@ -147,7 +153,6 @@ class GetMoreInfoView(APIView):
             return Response({"error": "UNAUTHORIZED"}, status=status.HTTP_401_UNAUTHORIZED)
         
 
-
 class createLastLogin(APIView):
 
     permissions_classes = [permissions.IsAuthenticated]
@@ -164,3 +169,12 @@ class createLastLogin(APIView):
 
 
         
+# ================== FUNCTIONS ================== #
+
+# @receiver(otp_server)
+async def connect_to_otp_server(cid, phn):
+    async with httpx.AsyncClient() as client:
+        res = await client.post(f"{otpUrl}/otp/v1/create-or-update", data={"connection_id":cid, "phone_number": phn})
+        print(res)
+        # res = {**res.json(), "registration_stage":'step two', "otp":otp}
+    # else:
