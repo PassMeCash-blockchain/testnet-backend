@@ -2,6 +2,7 @@ from django.conf import settings
 import string, random, uuid, json, requests as req, asyncio, base64 
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
+from .sec import *
 
 
 # def Res(res):
