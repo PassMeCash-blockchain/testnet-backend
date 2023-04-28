@@ -21,34 +21,42 @@ otpUrl = URLs["otpUrl"]
 class RegisterView(APIView):
 
     def post(self, request):
-        d = decrypt(request.data, 'json')
-        data = {**d, "path":'create'}
+        # pH = decrypt(request.data['phone_number'])
+        # p = decrypt(request.data['password'])
+        # data = {"phone_number": pH, "password": p, "path":'create'}
+        data = {**request.data, "path":'create'}
         res = req.post(f"{url}auth/v1/register", data = data)
+        print(res.json())
         ress = res.json()
         err = list(res.json().keys())
+        print(err)
         Errors = []
         if res.status_code == 200:
-            return Response({"message": encrypt(res.json(), 'json')}, status=status.HTTP_200_OK)
+            return Response({"message": res.json()}, status=status.HTTP_200_OK)
+            # return Response({"message": encrypt(res.json(), 'json')}, status=status.HTTP_200_OK)
         
         if res.status_code == 400:
 
             for i in range(len(err)):
                 if err[i] == 'password':
-                    Errors.append(encrypt(ress[err[i]]), 'json')
+                    # Errors.append(encrypt(ress[err[i]]), 'json')
+
+                    Errors.append(ress[err[i]])
                 if err[i] == 'phone_number':
-                    Errors.append(encrypt(ress[err[i]]), 'json')
+                    Errors.append(ress[err[i]])
                 else:
-                    Errors.append(encrypt(ress[err[i]]), 'json')
+                    Errors.append(ress[err[i]])
             return Response({"message": Errors}, status=status.HTTP_200_OK)
         
         if res.status_code == 404:
             for i in range(len(err)):
-                Errors.append(encrypt(ress[err[i]]), 'json')
+                Errors.append(ress[err[i]])
             return Response({"message": Errors}, status=status.HTTP_404_NOT_FOUND)
         
         if res.status_code == 500:
+            print(err)
             for i in range(len(err)):
-                Errors.append(encrypt(ress[err[i]]), 'json')
+                Errors.append(ress[err[i]])
             return Response({"message": Errors}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class RegisterPersonalView(APIView):

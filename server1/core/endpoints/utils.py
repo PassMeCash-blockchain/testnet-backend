@@ -25,23 +25,23 @@ def getUserInfo(token):
 
 
 
-def encrypt(raw, t = 'str'):
-    raw = pad(raw.encode(),16)
-    cipher = AES.new(eKey.encode('utf-8'), AES.MODE_ECB)
-    if t == 'str':
-        encrypted = base64.b64encode(cipher.encrypt(raw))
-        return encrypted.decode("utf-8", "ignore")
-    else:
-        encrypted = base64.b64encode(cipher.encrypt(json.loads(raw)))
-        return (encrypted.decode("utf-8", "ignore"))
+# def encrypt(raw, t = 'str'):
+#     raw = pad(raw.encode(),16)
+#     cipher = AES.new(eKey.encode('utf-8'), AES.MODE_ECB)
+#     if t == 'str':
+#         encrypted = base64.b64encode(cipher.encrypt(raw))
+#         return encrypted.decode("utf-8", "ignore")
+#     else:
+#         encrypted = base64.b64encode(cipher.encrypt(json.loads(raw)))
+#         return (encrypted.decode("utf-8", "ignore"))
          
 
-
-def decrypt(enc, t = 'str'):
-    enc = base64.b64decode(enc)
-    cipher = AES.new(eKey.encode('utf-8'), AES.MODE_ECB)
-    decrypted = unpad(cipher.decrypt(enc),16)
-    if t == 'str':
-        return decrypted.decode("utf-8", "ignore")
-    else:
-        return json.dumps(decrypted.decode("utf-8", "ignore"))
+# print(eKey)
+# def decrypt(enc, t = 'str'):
+#     enc = base64.b64decode(enc)
+#     cipher = AES.new(eKey.encode('utf-8'), AES.MODE_ECB)
+#     decrypted = unpad(cipher.decrypt(enc),16)
+#     if t == 'str':
+#         return decrypted.decode("utf-8", "ignore")
+#     else:
+#         return json.dumps(decrypted.decode("utf-8", "ignore"))
