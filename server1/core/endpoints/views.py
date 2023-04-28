@@ -44,7 +44,7 @@ class RegisterView(APIView):
                     Errors.append(ress[err[i]])
                 else:
                     Errors.append(ress[err[i]])
-            return Response({"message": Errors}, status=status.HTTP_200_OK)
+            return Response({"message": Errors}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         if res.status_code == 404:
             for i in range(len(err)):
