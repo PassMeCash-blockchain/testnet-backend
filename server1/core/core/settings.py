@@ -39,12 +39,10 @@ INSTALLED_APPS = [
     'endpoints.apps.EndpointsConfig',
     'websockets',
 
-    # installed dependecies
+    # installed dependencies
     'rest_framework',
     'corsheaders',
 
-    'djagger',
-    'drf_yasg',
     'channels',
 
 
@@ -149,3 +147,4 @@ CORS_ALLOW_HEADERS = list(default_headers)
 # Global Variables
 # ------------------------------------------------------------------------------------
 CKEY = os.getenv("connection-key")
+EKEY = os.getenv("E_KEY")
