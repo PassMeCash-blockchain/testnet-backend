@@ -148,3 +148,4 @@ CORS_ALLOW_HEADERS = list(default_headers)
 # ------------------------------------------------------------------------------------
 CKEY = os.getenv("connection-key")
 EKEY = os.getenv("E_KEY")
+MODE = os.getenv("mode")

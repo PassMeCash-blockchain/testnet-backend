@@ -3,10 +3,22 @@ import string, random, uuid, json, requests as req, asyncio, base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 
-URLs = {
-    "authUrl": "http://localhost:7781/",
-    "otpUrl": "http://localhost:7782/"
-}
+if settings.MODE == 'development':
+    URLs = {
+        "authUrl": "http://localhost:7781/",
+        "otpUrl": "http://localhost:7782/"
+    }
+else:
+    f = open("urls.txt", "r")
+    data = str(f).split(";")
+    f.close()
+    for x in range(len(data)):
+        URLs = {
+            "authUrl": data[0],
+            "otpUrl": data[1],
+        }
+
+
 
 # def Res(res):
 #     pass
