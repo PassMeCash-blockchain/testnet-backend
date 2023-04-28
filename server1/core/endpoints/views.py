@@ -30,7 +30,7 @@ class RegisterView(APIView):
         err = list(res.json().keys())
         Errors = []
         if res.status_code == 200:
-            return Response({"message": res.json()}, status=status.HTTP_200_OK)
+            return Response({"message": res.json()}, status=status.HTTP_201_CREATED)
             # return Response({"message": encrypt(res.json(), 'json')}, status=status.HTTP_200_OK)
         
         if res.status_code == 400:
@@ -71,7 +71,7 @@ class RegisterPersonalView(APIView):
             err = list(res.json().keys())
             Errors = []
             if res.status_code == 200:
-                return Response({"message": res.json()}, status=status.HTTP_200_OK)
+                return Response({"message": res.json()}, status=status.HTTP_201_CREATED)
             
             if res.status_code == 400:
 
@@ -109,7 +109,7 @@ class RegisterContactView(APIView):
             err = list(res.json().keys())
             Errors = []
             if res.status_code == 200:
-                return Response({"message": res.json()}, status=status.HTTP_200_OK)
+                return Response({"message": res.json()}, status=status.HTTP_201_CREATED)
             
             if res.status_code == 400:
 
