@@ -3,4 +3,5 @@
 */venv
 */assets
 */db.sqlite3
-*/env
+*/.env
+*/sec.py

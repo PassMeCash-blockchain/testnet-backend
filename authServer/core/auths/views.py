@@ -61,14 +61,15 @@ class RegisterView(APIView):
             cid = uuid.uuid4()
             otp = {'connection_id': cid}
             # connect_to_otp_server(r, data, user)
-            connect = connect_to_otp_server(cid, data['phone_number'])
-            asyncio.run(connect)
+            # connect = connect_to_otp_server(cid, data['phone_number'])
+            # asyncio.run(connect)
             if otp:
                 Stage.objects.create(user=user,stageOne=T)
                 UD.objects.filter(user=userInfo(
                     user.username)).update(verified=T)
-                res = req.post(f"{BaseUrl(r)}/auth/token/", data={"username":user.username, "password": data['password']})
-                res = {**res.json(), "registration_stage":'step two', "otp":otp}
+                # res = req.post(f"{BaseUrl(r)}/auth/token/", data={"username":user.username, "password": data['password']})
+                # res = {**res.json(), "registration_stage":'step two', "otp":otp}
+                res = {"registration_stage":'step two', "otp":otp}
             else:
                 res = {"registration_stage": "step two", 'otp': otp}
 
