@@ -36,11 +36,11 @@ def get_mobile_object(phone):
     return phoneModel.objects.get(Mobile=phone)
 
 @sync_to_async
-def create_phone_model(phone):
-    return phoneModel.objects.create(Mobile=phone)
+def create_phone_model(phone,u_id):
+    return phoneModel.objects.create(Mobile=phone,unique_id=u_id)
 
 @sync_to_async
-def update_wait_time(instance):
+def update_wait_time(self,instance):
     naive_date_str=str(self.time.shift(hours=1).format('YYYY-MM-DD HH:mm'))
     naive_datetime=datetime.strptime(naive_date_str, '%Y-%m-%d %H:%M')
     instance.wait_time = make_aware(naive_datetime, timezone=pytz.timezone("Africa/Lagos"))
@@ -60,15 +60,16 @@ class RequestOTP(APIView):
     async def post(self,request):
         data=request.data
         phone=data['phone']
+        u_id=data['uuid']
         try:
             Mobile = await get_mobile_object(phone)   # if Mobile already exists the take this else create New One
         except ObjectDoesNotExist:
-            await create_phone_model(phone)
+            await create_phone_model(phone,u_id)
             Mobile = await get_mobile_object(phone)   # user Newly created Model
 
         Mobile.counter += 1  # Update Counter At every Call
         if Mobile.counter>=6 and Mobile.wait_time is None:
-            await update_wait_time(Mobile)
+            await update_wait_time(self,Mobile)
             return Response({'disallowed':'maximum otp call exceeded'})
         elif Mobile.counter>=6 and Mobile.wait_time:
                 return Response({'message':"cannot create otp now, please exceed wait time"})
@@ -80,12 +81,13 @@ class RequestOTP(APIView):
         if result:
             await PingServer(json.dumps(
                 {
-                    "message":{
+                    "message":
+                    {
                            "success":"otp sent"
             },
             "sender":"otp-service"
             }
-            )
+            ),u_id
             )
             return Response({"OTP-SENT": OTP.at(Mobile.counter)}, status=200)  #
         else:
@@ -97,6 +99,7 @@ class VerifyOtp(APIView):
         return Response('Verify Your OTP')
     def post(self,request):
         data=request.data
+        u_id=data['uuid']
         phone=data['phone']
         try:
             Mobile = phoneModel.objects.get(Mobile=phone)

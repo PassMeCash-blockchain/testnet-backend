@@ -19,7 +19,7 @@ application = ProtocolTypeRouter({
     'websocket':AllowedHostsOriginValidator(
     AuthMiddlewareStack(
         URLRouter([
-            re_path('ws/cluster/', WebsocketCluster.as_asgi())
+            path('ws/cluster/<str:layer_id>/', WebsocketCluster.as_asgi())
         ])
    )
    )
