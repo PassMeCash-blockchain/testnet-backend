@@ -6,19 +6,36 @@ from channels.exceptions import StopConsumer
 class WebsocketCluster(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name='cluster'
-        self.room_group_name='instance ' + self.room_name
+        self.room_group_name='server-' + self.room_name
         await self.accept()
-        await self.send(text_data='connected to server')
-        # await self.channel_layer.group_add(
-        #     self.room_group_name,
-        #     self.channel_name
-        # )
+        await self.send(text_data='connected to server instance')
+        await self.channel_layer.group_add(
+            self.room_group_name,
+            self.channel_name
+        )
 
     async def receive(self, text_data=None, bytes_data=None):
-        pass
+        if text_data:
+            recieved_data=json.loads(text_data)
+            message=recieved_data['message']
+            sender=recieved_data['sender']
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                'type':'chat_message',
+                'message':message,
+                'sender':sender,
+                }
+                )
     async def chat_message(self,event):
-        pass
+        message=event['message']
+        sender=event['sender']
+        await self.send(text_data=json.dumps({
+            'message':message,
+            'sender':sender,
+        }))
     async def disconnect(self, code):
+        print('disconnected')
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name

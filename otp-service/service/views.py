@@ -14,6 +14,8 @@ from .serializers import *
 import asyncio
 from asgiref.sync import sync_to_async
 from asgiref.sync import async_to_sync
+from .client import PingServer
+import json
 # Create your views here.
 
 def GenTime():
@@ -27,7 +29,7 @@ class generateKey:
 
 async def OTPSim():
     await asyncio.sleep(5)
-    return False
+    return True
 
 @sync_to_async
 def get_mobile_object(phone):
@@ -76,6 +78,15 @@ class RequestOTP(APIView):
         OTP = pyotp.HOTP(key)
         result= await OTPSim()
         if result:
+            await PingServer(json.dumps(
+                {
+                    "message":{
+                           "success":"otp sent"
+            },
+            "sender":"otp-service"
+            }
+            )
+            )
             return Response({"OTP-SENT": OTP.at(Mobile.counter)}, status=200)  #
         else:
             return Response({"failure":"otp sending failed"})
