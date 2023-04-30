@@ -21,7 +21,9 @@ SECRET_KEY = os.getenv("secret_key")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(int(os.getenv("debug_status")))
 
-ALLOWED_HOSTS = os.getenv("allowed_hosts").split(",")
+ALLOWED_HOSTS = ['*']
+
+# os.getenv("allowed_hosts").split(",")
 
 
 # Application definition
@@ -142,6 +144,15 @@ CORS_ALLOWED_ORIGINS = os.getenv("cors_allowed_hosts").split(",")
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = list(default_headers)
+
+# ------------------------------------------------------------------------------------
+# Channel_Layer
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 # ------------------------------------------------------------------------------------
 # Global Variables
