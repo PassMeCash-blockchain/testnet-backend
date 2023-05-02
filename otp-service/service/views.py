@@ -91,6 +91,17 @@ class RequestOTP(APIView):
             )
             return Response({"OTP-SENT": OTP.at(Mobile.counter)}, status=200)  #
         else:
+            await PingServer(
+                json.dumps(
+                    {
+                        "message":
+                        {
+                            "failure":"otp failed"
+                        },
+                        "sender":"otp-service"
+                    }
+                ),u_id
+            )
             return Response({"failure":"otp sending failed"})
 
 class VerifyOtp(APIView):
