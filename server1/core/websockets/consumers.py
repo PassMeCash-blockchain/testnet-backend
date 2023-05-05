@@ -21,9 +21,9 @@ class WebsocketCluster(AsyncWebsocketConsumer):
             recieved_data=json.loads(text_data)
             message=recieved_data['message']
             sender=recieved_data['sender']
-            if message['success']=='otp sent' and sender=='otp-service':
-                await self.send(
-                text_data=json.dumps(
+            if message.get('success') is not None and sender=='otp-service':
+                    await self.send(
+                    text_data=json.dumps(
                     {
                     'confirmed':'confirmed sent'
                 }
@@ -38,6 +38,14 @@ class WebsocketCluster(AsyncWebsocketConsumer):
             #     'sender':sender,
             #     }
             #     )
+            if message.get('failure') is not None and sender=='otp-service':
+                    await self.send(
+                    text_data=json.dumps(
+                        {
+                            'unsuccessful':'otp not sent'
+                        }
+                    )
+                )
 
     async def chat_message(self,event):
         message=event['message']

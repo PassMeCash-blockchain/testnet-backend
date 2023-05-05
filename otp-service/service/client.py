@@ -13,7 +13,9 @@ async def PingServer(payload,layer_id):
             res_conv=json.loads(res)
             print(res_conv)
             try:
-                if res_conv['confirmed']:
+                if res_conv.get('confirmed') is not None:
+                    break
+                elif res_conv.get('unsuccessful') is not None:
                     break
             except:
                 print("otp not confirmed")
